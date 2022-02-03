@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model comment {
+  id       Int     @id @default(autoincrement()) @map("_id") @db.UnsignedInt
+  text        String       @db.LongText
+  mediaurl   String       @db.LongText
+  enable   Int?    @default(1) @db.TinyInt
+  date     String  @db.VarChar(45)
+  time    String  @db.VarChar(45)
+  user__id Int
+  post__id Int     @db.UnsignedInt
+  post     post    @relation(fields: [post__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comment_post1")
+  user     user    @relation(fields: [user__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comment_user1")
+
+  @@index([post__id], map: "fk_comment_post1_idx")
+  @@index([user__id], map: "fk_comment_user1_idx")
+}
+
+model liked_post {
+  liked    Int? @default(1) @db.TinyInt
+  user__id Int
+  post__id Int  @db.UnsignedInt
+  post     post @relation(fields: [post__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_liked_post_post1")
+  user     user @relation(fields: [user__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_liked_post_user")
+
+  @@id([user__id, post__id])
+  @@index([post__id], map: "fk_liked_post_post1_idx")
+  @@index([user__id], map: "fk_liked_post_user_idx")
+}
+
+model post {
+  id             Int          @id @default(autoincrement()) @map("_id") @db.UnsignedInt
+  text        String       @db.LongText
+  mediaurl   String       @db.LongText
+  like           Int?         @default(0)
+  enable         Int?         @default(1) @db.TinyInt
+  date           String    @db.VarChar(45)
+  time    String  @db.VarChar(45)
+  commentsnumber Int?
+  op             Int
+  reports        Int?         @default(0)
+  user           user         @relation(fields: [op], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_post_user1")
+  comment        comment[]
+  liked_post     liked_post[]
+
+  @@index([op], map: "fk_post_user1_idx")
+}
+
+model user {
+  id         Int          @id @unique(map: "_id_UNIQUE") @default(autoincrement()) @map("_id")
+  name       String       @db.VarChar(45)
+  surname    String       @db.VarChar(45)
+  isamod     Int?      @default(0) @db.TinyInt
+  workplace  String?      @default("Groupomania") @db.VarChar(255)
+  password   String       @db.VarChar(255)
+  email      String       @unique(map: "email_UNIQUE") @db.VarChar(255)
+  profilepicurl String?    @db.VarChar(255)
+  comment    comment[]
+  liked_post liked_post[]
+  post       post[]
+}

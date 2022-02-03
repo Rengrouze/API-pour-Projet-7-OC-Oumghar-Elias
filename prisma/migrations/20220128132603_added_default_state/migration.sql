@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `user` MODIFY `isamod` TINYINT NULL DEFAULT 0;
