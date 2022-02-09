@@ -5,11 +5,27 @@ const prisma = new PrismaClient();
 exports.getAllPosts = (req, res, next) => {
    console.log("Api contactée pour récupérer les posts");
    prisma.post
-      .findMany()
+      .findMany({
+         include: {
+            user: {
+               select: {
+                  name: true,
+                  surname: true,
+                  id: true,
+                  profilepicurl: true,
+                  workplace: true,
+               },
+            },
+         },
+         orderBy: {
+            id: "desc",
+         },
+      })
       .then((posts) => {
          res.status(200).json({
             posts: posts,
          });
+         console.log("j'ai bien envoyé les posts, j'attends la suite");
       })
       .catch((error) => res.status(500).json({ error }));
 };

@@ -76,7 +76,7 @@ exports.signup = (req, res, next) => {
                                        expiresIn: "24h",
                                     });
 
-                                    res.status(200).json({
+                                    res.status(201).json({
                                        userId: user.id,
                                        userFirstName: user.name,
                                        userLastName: user.surname,
@@ -142,132 +142,52 @@ exports.login = (req, res, next) => {
 
 exports.update = (req, res, next) => {
    console.log("Api contactée pour modification");
+
    //  if there is a file, update the user with the file
-   if (req.file) {
-      console.log("yolo");
-      const fileObject = req.file
-         ? {
-              ...JSON.parse(req.body.user),
-              mediaUrl: `${req.protocol}://${req.get("host")}/images/profile/${req.file.filename}`,
-           }
-         : { ...req.body };
-      prisma.user
-         .findUnique({
-            where: {
-               id: req.body.userId,
-            },
-         })
-         .then((user) => {
-            if (user.profilepicurl) {
-               const oldImageUrl = user.profilepicurl.split("/images/profile/")[1];
-               fs.unlink(`images/profile/${oldImageUrl}`, (error) => {
-                  console.log(error);
-               });
-            }
+   const profilepicurl = req.file ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}` : req.body.mediaurl;
+
+   prisma.user
+      .update({
+         where: {
+            id: parseInt(req.body.userId),
+         },
+         data: {
+            name: req.body.firstName,
+            surname: req.body.lastName,
+            workplace: req.body.workPlace,
+            profilepicurl,
+            isamod: parseInt(req.body.mod),
+         },
+      })
+
+      .then((user) => {
+         res.status(200).json({
+            message: "Utilisateur modifié",
+            userId: user.id,
+            userFirstName: user.name,
+            userLastName: user.surname,
+            userWorkplace: user.workplace,
+            userMediaUrl: user.profilepicurl,
+            mod: user.isamod,
          });
-      prisma.user
-         .update({
-            where: {
-               _id: req.body.userId,
-            },
-            data: {
-               ...fileObject,
-               name: req.body.firstName,
-               surname: req.body.lastName,
-               workplace: req.body.workplace,
-            },
-         })
+         console.log("it works  ?");
+      })
 
-         .then((user) => {
-            res.status(200).json({
-               message: "Utilisateur modifié",
-               userId: user.id,
-               userFirstName: user.name,
-               userLastName: user.surname,
-               userWorkplace: user.workplace,
-               userMediaUrl: user.profilepicurl,
-               mod: user.isamod,
-            });
-         })
-         .catch((error) => res.status(500).json({ error }));
-      console.log(error);
-   }
-   // if there is a new image , delete the old one
-
-   // update the user with new name and surname, and the new image
-   if (!req.file && req.body.mediaurl !== null) {
-      console.log(req.body);
-      console.log("it works 1 ?");
-      prisma.user
-         .update({
-            where: {
-               id: req.body.userId,
-            },
-            data: {
-               name: req.body.firstName,
-               surname: req.body.lastName,
-               workplace: req.body.workPlace,
-               profilepicurl: req.body.mediaurl,
-               isamod: req.body.mod,
-            },
-         })
-
-         .then((user) => {
-            res.status(200).json({
-               message: "Utilisateur modifié",
-               userId: user.id,
-               userFirstName: user.name,
-               userLastName: user.surname,
-               userWorkplace: user.workplace,
-               userMediaUrl: user.profilepicurl,
-               mod: user.isamod,
-            });
-            console.log("it works  ?");
-         })
-
-         //in case of error send the error message
-         .catch((error) => {
-            console.log(error);
-            res.status(500).json({ error });
-         });
-
-      // .catch((error) => res.status(500).json({ error }));
-   } else {
-      console.log(req.body);
-      prisma.user
-         .update({
-            where: {
-               id: req.body.userId,
-            },
-            data: {
-               name: req.body.firstName,
-               surname: req.body.lastName,
-               workplace: req.body.workPlace,
-               isamod: req.body.mod,
-            },
-         })
-
-         .then((user) => {
-            res.status(200).json({
-               message: "Utilisateur modifié",
-               userId: user.id,
-               userFirstName: user.name,
-               userLastName: user.surname,
-               userWorkplace: user.workplace,
-               userMediaUrl: user.profilepicurl,
-               mod: user.isamod,
-            });
-            console.log("utilisateur modidié !");
-         })
-         .catch((error) => res.status(500).json({ error }));
-   }
+      //in case of error send the error message
+      .catch((error) => {
+         console.log(error);
+         res.status(500).json({ error });
+      });
 };
 exports.getOne = (req, res, next) => {
    console.log("Api contactée pour récupération d'un utilisateur");
+   console.log(req.params.id);
+   // convert the id to a number
+   const id = Number(req.params.id);
    prisma.user
-      .findOne({
+      .findUnique({
          where: {
-            id: req.params.id,
+            id: id,
          },
       })
       .then((user) => {
@@ -282,5 +202,8 @@ exports.getOne = (req, res, next) => {
             userMediaUrl: user.profilepicurl,
          });
       })
-      .catch((error) => res.status(500).json({ error }));
+      .catch((error) => {
+         res.status(500).json({ error });
+         console.log(error);
+      });
 };
