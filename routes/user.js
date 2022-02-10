@@ -6,9 +6,9 @@ const bouncer = require("express-bouncer")(500, 3600000);
 const multer = require("../middleware/multer-config");
 
 router.get("/", usersControllers.hello);
+router.get("/user:id", auth, usersControllers.getOne);
 router.post("/signup", usersControllers.signup);
 router.post("/login", bouncer.block, usersControllers.login);
-router.post("/update", auth, multer, usersControllers.update);
-router.get("/user:id", auth, usersControllers.getOne);
+router.put("/update", auth, multer, usersControllers.update);
 
 module.exports = router;

@@ -16,6 +16,29 @@ exports.getAllPosts = (req, res, next) => {
                   workplace: true,
                },
             },
+            comment: {
+               select: {
+                  enable: true,
+                  id: true,
+                  text: true,
+                  date: true,
+                  time: true,
+                  mediaurl: true,
+
+                  user: {
+                     select: {
+                        name: true,
+                        surname: true,
+                        id: true,
+                        profilepicurl: true,
+                        workplace: true,
+                     },
+                  },
+               },
+               orderBy: {
+                  id: "desc",
+               },
+            },
          },
          orderBy: {
             id: "desc",
@@ -27,7 +50,7 @@ exports.getAllPosts = (req, res, next) => {
          });
          console.log("j'ai bien envoyé les posts, j'attends la suite");
       })
-      .catch((error) => res.status(500).json({ error }));
+      .catch((error) => res.status(500).json(error.message));
 };
 
 exports.postOnePost = (req, res, next) => {
@@ -35,20 +58,34 @@ exports.postOnePost = (req, res, next) => {
    //get the actual time
    const fulldate = new Date();
    const year = fulldate.getFullYear();
-   const month = fulldate.getMonth() + 1;
-   const day = fulldate.getDate();
-   const hour = fulldate.getHours();
-   const minute = fulldate.getMinutes();
+   var month = fulldate.getMonth() + 1;
+   if (month < 10) {
+      month = "0" + month;
+   }
+   var day = fulldate.getDate();
+   if (day < 10) {
+      day = "0" + day;
+   }
+   var hour = fulldate.getHours();
+   if (hour < 10) {
+      hour = "0" + hour;
+   }
+   var minute = fulldate.getMinutes();
+   if (minute < 10) {
+      minute = "0" + minute;
+   }
 
    //format the date
    const date = `${day}/${month}/${year}`;
    const time = `${hour}:${minute}`;
 
+   const mediaurl = req.file ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}` : req.body.mediaurl;
+
    //get the user info from the user id
    prisma.user
       .findUnique({
          where: {
-            id: req.body.op,
+            id: parseInt(req.body.op),
          },
       })
       .then((id) => {
@@ -56,11 +93,12 @@ exports.postOnePost = (req, res, next) => {
          prisma.post
             .create({
                data: {
-                  text: req.body.content.text,
-                  mediaurl: req.body.content.mediaurl,
-                  date: date,
-                  time: time,
-                  op: req.body.op,
+                  text: req.body.text,
+                  mediaurl,
+                  date,
+                  time,
+                  op: parseInt(req.body.op),
+                  commentsnumber: 0,
                },
             })
             .then((post) => {
@@ -74,4 +112,63 @@ exports.postOnePost = (req, res, next) => {
             });
       })
       .catch((error) => res.status(500).json({ error }));
+};
+exports.postOneComment = (req, res, next) => {
+   console.log("Api contactée pour ajouter un commentaire");
+   //get the actual time
+   const fulldate = new Date();
+   const year = fulldate.getFullYear();
+   var month = fulldate.getMonth() + 1;
+   if (month < 10) {
+      month = "0" + month;
+   }
+   var day = fulldate.getDate();
+   if (day < 10) {
+      day = "0" + day;
+   }
+   var hour = fulldate.getHours();
+   if (hour < 10) {
+      hour = "0" + hour;
+   }
+   var minute = fulldate.getMinutes();
+   if (minute < 10) {
+      minute = "0" + minute;
+   }
+
+   //format the date
+   const date = `${day}/${month}/${year}`;
+   const time = `${hour}:${minute}`;
+   const mediaurl = req.file ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}` : req.body.mediaurl;
+
+   //get the user info from the user id
+   prisma.user
+      .findUnique({
+         where: {
+            id: parseInt(req.body.op),
+         },
+      })
+      .then((id) => {
+         //create the comment
+         prisma.comment
+            .create({
+               data: {
+                  text: req.body.text,
+                  date,
+                  mediaurl,
+                  time,
+                  user__id: parseInt(req.body.op),
+                  post__id: parseInt(req.body.post),
+               },
+            })
+            .then((comment) => {
+               res.status(201).json({
+                  comment: comment,
+               });
+            })
+            .catch((error) => {
+               console.log(error);
+               res.status(500).json({ error });
+            });
+      })
+      .catch((error) => res.status(500).json(error.message));
 };

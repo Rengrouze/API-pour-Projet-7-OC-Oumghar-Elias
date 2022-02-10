@@ -161,7 +161,7 @@ exports.update = (req, res, next) => {
       })
 
       .then((user) => {
-         res.status(200).json({
+         res.status(201).json({
             message: "Utilisateur modifié",
             userId: user.id,
             userFirstName: user.name,
