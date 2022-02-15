@@ -179,31 +179,3 @@ exports.update = (req, res, next) => {
          res.status(500).json({ error });
       });
 };
-exports.getOne = (req, res, next) => {
-   console.log("Api contactée pour récupération d'un utilisateur");
-   console.log(req.params.id);
-   // convert the id to a number
-   const id = Number(req.params.id);
-   prisma.user
-      .findUnique({
-         where: {
-            id: id,
-         },
-      })
-      .then((user) => {
-         if (!user) {
-            res.status(404).json({ error: "Utilisateur non trouvé !" });
-            return;
-         }
-         res.status(200).json({
-            userFirstName: user.name,
-            userLastName: user.surname,
-            userWorkplace: user.workplace,
-            userMediaUrl: user.profilepicurl,
-         });
-      })
-      .catch((error) => {
-         res.status(500).json({ error });
-         console.log(error);
-      });
-};

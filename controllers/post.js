@@ -6,6 +6,9 @@ exports.getAllPosts = (req, res, next) => {
    console.log("Api contactée pour récupérer les posts");
    prisma.post
       .findMany({
+         where: {
+            enable: 1,
+         },
          include: {
             user: {
                select: {
@@ -36,7 +39,13 @@ exports.getAllPosts = (req, res, next) => {
                   },
                },
                orderBy: {
-                  id: "desc",
+                  id: "asc",
+               },
+            },
+            liked_post: {
+               select: {
+                  user__id: true,
+                  liked: true,
                },
             },
          },
@@ -98,7 +107,6 @@ exports.postOnePost = (req, res, next) => {
                   date,
                   time,
                   op: parseInt(req.body.op),
-                  commentsnumber: 0,
                },
             })
             .then((post) => {
@@ -161,6 +169,7 @@ exports.postOneComment = (req, res, next) => {
                },
             })
             .then((comment) => {
+               console.log("Commentaire créé");
                res.status(201).json({
                   comment: comment,
                });
@@ -169,6 +178,34 @@ exports.postOneComment = (req, res, next) => {
                console.log(error);
                res.status(500).json({ error });
             });
+      })
+
+      .catch((error) => res.status(500).json(error.message));
+};
+
+exports.like = (req, res, next) => {
+   prisma.liked_post
+      .upsert({
+         where: {
+            user__id_post__id: {
+               post__id: req.body.postId,
+               user__id: req.body.userId,
+            },
+         },
+         create: {
+            post__id: req.body.postId,
+            user__id: req.body.userId,
+            liked: req.body.signal,
+         },
+         update: {
+            liked: req.body.signal,
+         },
+      })
+      .then((liked_post) => {
+         //check if the post has been liked_post
+         res.status(200).json({
+            like: !!liked_post.liked,
+         });
       })
       .catch((error) => res.status(500).json(error.message));
 };

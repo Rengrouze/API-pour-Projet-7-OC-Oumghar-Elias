@@ -58,10 +58,11 @@ model post {
   time    String  @db.VarChar(45)
  
   op             Int
-  reports        Int?         @default(0)
+  
   user           user         @relation(fields: [op], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_post_user1")
   comment        comment[]
   liked_post     liked_post[]
+  reported_post  reported_post[]
 
   @@index([op], map: "fk_post_user1_idx")
 }
@@ -77,5 +78,6 @@ model user {
   profilepicurl String?    @db.VarChar(255)
   comment    comment[]
   liked_post liked_post[]
+  reported_post  reported_post[]
   post       post[]
 }
