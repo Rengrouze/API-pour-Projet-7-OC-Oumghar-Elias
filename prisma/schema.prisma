@@ -48,6 +48,7 @@ model reported_post {
 }
 
 
+
 model post {
   id             Int          @id @default(autoincrement()) @map("_id") @db.UnsignedInt
   text        String       @db.LongText
@@ -80,4 +81,5 @@ model user {
   liked_post liked_post[]
   reported_post  reported_post[]
   post       post[]
+
 }

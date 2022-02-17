@@ -28,6 +28,6 @@
       "toobusy-js": "^0.5.1"
    },
    "devDependencies": {
-      "prisma": "^3.9.1"
+      "prisma": "^3.9.2"
    }
 }

@@ -27,6 +27,7 @@ exports.getAllPosts = (req, res, next) => {
                   date: true,
                   time: true,
                   mediaurl: true,
+                  post__id: true,
 
                   user: {
                      select: {
@@ -46,6 +47,12 @@ exports.getAllPosts = (req, res, next) => {
                select: {
                   user__id: true,
                   liked: true,
+               },
+            },
+            reported_post: {
+               select: {
+                  user__id: true,
+                  reported: true,
                },
             },
          },
@@ -111,6 +118,7 @@ exports.postOnePost = (req, res, next) => {
             })
             .then((post) => {
                res.status(201).json({
+                  //response the post and the user
                   post: post,
                });
             })
@@ -184,6 +192,7 @@ exports.postOneComment = (req, res, next) => {
 };
 
 exports.like = (req, res, next) => {
+   console.log(req.body);
    prisma.liked_post
       .upsert({
          where: {
@@ -206,6 +215,66 @@ exports.like = (req, res, next) => {
          res.status(200).json({
             like: !!liked_post.liked,
          });
+      })
+      .catch((error) => res.status(500).json(error.message));
+};
+exports.reportPost = (req, res, next) => {
+   prisma.reported_post
+      .upsert({
+         where: {
+            user__id_post__id: {
+               post__id: req.body.postId,
+               user__id: req.body.userId,
+            },
+         },
+         create: {
+            post__id: req.body.postId,
+            user__id: req.body.userId,
+            reported: req.body.signal,
+         },
+         update: {
+            reported: req.body.signal,
+         },
+      })
+      .then((reported_post) => {
+         //check if the post has been liked_post
+         res.status(200).json({
+            report: !!reported_post.liked,
+         });
+      })
+      .catch((error) => res.status(500).json(error.message));
+};
+exports.supressPost = (req, res, next) => {
+   console.log(req.body);
+   console.log("tolo");
+   prisma.post
+      .update({
+         where: {
+            id: parseInt(req.body.postId),
+         },
+         data: {
+            enable: parseInt(req.body.signal),
+         },
+      })
+      .then((post) => {
+         res.status(200).json("post supprimé");
+      })
+      .catch((error) => res.status(500).json(error.message));
+};
+exports.supressComment = (req, res, next) => {
+   console.log(req.body);
+   console.log("tolo");
+   prisma.comment
+      .update({
+         where: {
+            id: parseInt(req.body.commentId),
+         },
+         data: {
+            enable: parseInt(req.body.signal),
+         },
+      })
+      .then((comment) => {
+         res.status(200).json("comment supprimé");
       })
       .catch((error) => res.status(500).json(error.message));
 };
