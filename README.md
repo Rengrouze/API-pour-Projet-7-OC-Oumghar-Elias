@@ -2,6 +2,6 @@
 
 Hello, c'est l'api pour le projet 7 d'openClassrooms, groupomania
 
-Elle fonctionne avec Mysql
+Elle fonctionne avec Mysql, (allez voir .env.example pour plus d'info)
 
-pour démarrer l'api : npm install => npm run start
+pour démarrer l'api : `npm ci` => `npm run start`
