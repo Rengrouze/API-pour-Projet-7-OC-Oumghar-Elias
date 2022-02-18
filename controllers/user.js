@@ -29,10 +29,10 @@ exports.signup = (req, res, next) => {
             // check if password is strong enough
             console.log("Vérification force du mot de passe");
             const passwordStrengthResult = passwordStrength(req.body.password);
-            if (passwordStrengthResult.id <= 1) {
+            if (passwordStrengthResult.id < 1) {
                // if the password is too weak, reject the request
                res.status(400).json({
-                  error: "Votre mot de passe est trop faible",
+                  error: "Votre mot de passe est trop faible (minimum 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre)",
                });
                console.log("Mot de passer trop faible");
                return;

@@ -115,10 +115,28 @@ exports.postOnePost = (req, res, next) => {
                   time,
                   op: parseInt(req.body.op),
                },
+               include: {
+                  user: {
+                     select: {
+                        name: true,
+                        surname: true,
+                        id: true,
+                        profilepicurl: true,
+                        workplace: true,
+                     },
+                  },
+                  liked_post: {},
+                  reported_post: {},
+                  comment: {
+                     include: {
+                        user: {},
+                     },
+                  },
+               },
             })
             .then((post) => {
                res.status(201).json({
-                  //response the post and the user
+                  //response the post and attach the user info
                   post: post,
                });
             })
@@ -174,6 +192,17 @@ exports.postOneComment = (req, res, next) => {
                   time,
                   user__id: parseInt(req.body.op),
                   post__id: parseInt(req.body.post),
+               },
+               include: {
+                  user: {
+                     select: {
+                        name: true,
+                        surname: true,
+                        id: true,
+                        profilepicurl: true,
+                        workplace: true,
+                     },
+                  },
                },
             })
             .then((comment) => {
