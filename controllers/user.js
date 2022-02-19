@@ -30,7 +30,7 @@ exports.signup = (req, res, next) => {
             if (passwordStrengthResult.id < 1) {
                // if the password is too weak, reject the request
                res.status(400).json({
-                  error: "Votre mot de passe est trop faible (minimum 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre)",
+                  error: "Votre mot de passe est trop faible (minimum 6 caractères et au moins 1 majuscule ou 1 chiffre)",
                });
                console.log("Mot de passer trop faible");
                return;
