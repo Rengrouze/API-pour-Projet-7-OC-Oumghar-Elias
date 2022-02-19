@@ -1,18 +1,16 @@
 const bcrypt = require("bcrypt"); //for crypting the password
-const jwt = require("jsonwebtoken");
-
+const jwt = require("jsonwebtoken"); // for the Token
 const { passwordStrength } = require("check-password-strength"); // check the password strength
-const bouncer = require("express-bouncer")(500, 3600000); // for brute force protection
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.hello = (req, res, next) => {
-   res.send("Hello from user controller Prisma is doing his best :)");
+   res.send("Hello from user controller, Prisma is doing his best :)");
 };
 exports.signup = (req, res, next) => {
    // check if email is already used
    console.log("Api contactée pour inscription");
-   console.log("Vérification adresse mail unique");
+
    prisma.user
       .findUnique({
          where: {

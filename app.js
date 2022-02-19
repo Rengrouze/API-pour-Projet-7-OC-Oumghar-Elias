@@ -1,4 +1,3 @@
-const dotenv = require("dotenv").config();
 const helmet = require("helmet");
 const toobusy = require("toobusy-js");
 const express = require("express");

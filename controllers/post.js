@@ -1,4 +1,3 @@
-const fs = require("fs");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
@@ -222,6 +221,7 @@ exports.postOneComment = (req, res, next) => {
 
 exports.like = (req, res, next) => {
    console.log(req.body);
+   console.log("Api contactée pour liker un post ou supprimer un like");
    prisma.liked_post
       .upsert({
          where: {
@@ -241,6 +241,7 @@ exports.like = (req, res, next) => {
       })
       .then((liked_post) => {
          //check if the post has been liked_post
+         console.log(liked_post.liked);
          res.status(200).json({
             like: !!liked_post.liked,
          });
@@ -248,6 +249,7 @@ exports.like = (req, res, next) => {
       .catch((error) => res.status(500).json(error.message));
 };
 exports.reportPost = (req, res, next) => {
+   console.log("Api contactée pour signaler un post ou supprimer un signalement");
    prisma.reported_post
       .upsert({
          where: {
@@ -266,16 +268,17 @@ exports.reportPost = (req, res, next) => {
          },
       })
       .then((reported_post) => {
-         //check if the post has been liked_post
+         console.log(reported_post.reported);
+
          res.status(200).json({
-            report: !!reported_post.liked,
+            report: !!reported_post.reported,
          });
       })
       .catch((error) => res.status(500).json(error.message));
 };
 exports.supressPost = (req, res, next) => {
    console.log(req.body);
-   console.log("tolo");
+   console.log("Api contactée pour supprimer un post");
    prisma.post
       .update({
          where: {
@@ -292,7 +295,7 @@ exports.supressPost = (req, res, next) => {
 };
 exports.supressComment = (req, res, next) => {
    console.log(req.body);
-   console.log("tolo");
+   console.log("Api contactée pour supprimer un commentaire");
    prisma.comment
       .update({
          where: {
