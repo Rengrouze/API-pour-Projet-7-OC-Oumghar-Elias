@@ -14,10 +14,10 @@ model comment {
   enable   Int?    @default(1) @db.TinyInt
   date     String  @db.VarChar(45)
   time    String  @db.VarChar(45)
-  user__id Int
-  post__id Int     @db.UnsignedInt
-  post     post    @relation(fields: [post__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comment_post1")
-  user     user    @relation(fields: [user__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comment_user1")
+  user__id Int?
+  post__id Int?     @db.UnsignedInt
+  post     post?   @relation(fields: [post__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comment_post1")
+  user     user?   @relation(fields: [user__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comment_user1")
 
   @@index([post__id], map: "fk_comment_post1_idx")
   @@index([user__id], map: "fk_comment_user1_idx")
@@ -27,8 +27,8 @@ model liked_post {
   liked    Int? @default(1) @db.TinyInt
   user__id Int
   post__id Int  @db.UnsignedInt
-  post     post @relation(fields: [post__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_liked_post_post1")
-  user     user @relation(fields: [user__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_liked_post_user")
+  post     post? @relation(fields: [post__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_liked_post_post1")
+  user     user? @relation(fields: [user__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_liked_post_user")
 
   @@id([user__id, post__id])
   @@index([post__id], map: "fk_liked_post_post1_idx")
@@ -39,8 +39,8 @@ model reported_post {
   reported    Int? @default(1) @db.TinyInt
   user__id Int
   post__id Int  @db.UnsignedInt
-  post     post @relation(fields: [post__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reported_post_post1")
-  user     user @relation(fields: [user__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reported_post_user")
+  post     post? @relation(fields: [post__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reported_post_post1")
+  user     user? @relation(fields: [user__id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reported_post_user")
 
   @@id([user__id, post__id])
   @@index([post__id], map: "fk_reported_post_post1_idx")
@@ -58,9 +58,9 @@ model post {
   date           String    @db.VarChar(45)
   time    String  @db.VarChar(45)
  
-  op             Int
+  op             Int?
   
-  user           user         @relation(fields: [op], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_post_user1")
+  user           user?         @relation(fields: [op], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_post_user1")
   comment        comment[]
   liked_post     liked_post[]
   reported_post  reported_post[]

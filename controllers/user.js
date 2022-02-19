@@ -177,3 +177,46 @@ exports.update = (req, res, next) => {
          res.status(500).json({ error });
       });
 };
+exports.delete = (req, res, next) => {
+   console.log("Api contactée pour suppression");
+   // delete the user and every post and comment associated to it
+
+   (async () => {
+      try {
+         const deleteLikedPosts = prisma.liked_post.deleteMany({
+            where: {
+               user__id: parseInt(req.body.userId),
+            },
+         });
+         const deleteReportedPosts = prisma.reported_post.deleteMany({
+            where: {
+               user__id: parseInt(req.body.userId),
+            },
+         });
+         const deleteComments = prisma.comment.deleteMany({
+            where: {
+               user__id: parseInt(req.body.userId),
+            },
+         });
+         const deletePosts = prisma.post.deleteMany({
+            where: {
+               op: parseInt(req.body.userId),
+            },
+         });
+         const deleteUser = prisma.user.delete({
+            where: {
+               id: parseInt(req.body.userId),
+            },
+         });
+         const transaction = await prisma
+            .$transaction([deleteLikedPosts, deleteReportedPosts, deleteComments, deletePosts, deleteUser])
+            .then((data) => {
+               console.log("transaction success");
+               res.status(200).json({ message: "Utilisateur supprimé" });
+            });
+      } catch (error) {
+         console.log(error);
+         res.status(500).json({ error });
+      }
+   })();
+};

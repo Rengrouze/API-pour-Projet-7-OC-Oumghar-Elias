@@ -10,5 +10,6 @@ router.get("/", usersControllers.hello);
 router.post("/signup", bouncer.block, usersControllers.signup);
 router.post("/login", bouncer.block, usersControllers.login);
 router.put("/update", auth, multer, usersControllers.update);
+router.put("/delete", auth, usersControllers.delete);
 
 module.exports = router;
