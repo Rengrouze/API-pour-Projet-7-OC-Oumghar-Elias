@@ -183,12 +183,12 @@ exports.delete = (req, res, next) => {
 
    (async () => {
       try {
-         const deleteLikedPosts = prisma.liked_post.deleteMany({
+         const deleteReportedPosts = prisma.reported_post.deleteMany({
             where: {
                user__id: parseInt(req.body.userId),
             },
          });
-         const deleteReportedPosts = prisma.reported_post.deleteMany({
+         const deleteLikedPosts = prisma.liked_post.deleteMany({
             where: {
                user__id: parseInt(req.body.userId),
             },
@@ -209,7 +209,7 @@ exports.delete = (req, res, next) => {
             },
          });
          const transaction = await prisma
-            .$transaction([deleteLikedPosts, deleteReportedPosts, deleteComments, deletePosts, deleteUser])
+            .$transaction([deleteReportedPosts, deleteLikedPosts, deleteComments, deletePosts, deleteUser])
             .then((data) => {
                console.log("transaction success");
                res.status(200).json({ message: "Utilisateur supprimé" });
