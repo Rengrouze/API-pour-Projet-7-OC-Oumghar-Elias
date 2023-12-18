@@ -75,7 +75,7 @@ model user {
   isamod     Int?      @default(0) @db.TinyInt
   workplace  String?      @default("Groupomania") @db.VarChar(255)
   password   String       @db.VarChar(255)
-  email      String       @unique(map: "email_UNIQUE") @db.VarChar(255)
+  email      String       @unique(map: "email_UNIQUE") @db.VarChar(100)
   profilepicurl String?    @db.VarChar(255)
   comment    comment[]
   liked_post liked_post[]
